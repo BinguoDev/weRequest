@@ -1,2 +1,2 @@
-declare const _default: () => Promise<unknown>;
+declare const _default: () => Promise<object>;
 export default _default;

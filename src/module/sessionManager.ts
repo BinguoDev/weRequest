@@ -149,7 +149,7 @@ function code2Session(code: string) {
     }
 
     return new Promise((resolve, reject) => {
-        let start = new Date().getTime();
+        const start = new Date().getTime();
         wx.request({
             url: requestHandler.format(config.codeToSession.url),
             data,
@@ -159,7 +159,7 @@ function code2Session(code: string) {
                 if (res.statusCode === 200) {
                     // 耗时上报
                     if (config.codeToSession.report) {
-                        let end = new Date().getTime();
+                        const end = new Date().getTime();
                         durationReporter.report(config.codeToSession.report, start, end)
                     }
 
@@ -216,9 +216,9 @@ function delSession() {
     }
 }
 
-function main(relatedRequestObj?: IRequestOption | IUploadFileOption) {
+function main(relatedRequestObj?: IRequestOption | IUploadFileOption): Promise<object> {
     return new Promise((resolve, reject) => {
-        let retry = !relatedRequestObj
+        const retry = !relatedRequestObj
             // 如果没有关联的请求，重试即调用自身
             ? () => main().then(resolve).catch(reject)
             // 如果有关联的请求，重试即调用所关联的请求

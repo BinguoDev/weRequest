@@ -3,10 +3,12 @@ export interface IInitOption {
     codeToSession: ICodeToSessionOptions;
     /* 储存在localStorage的session名称，且CGI请求的data中会自动带上以此为名称的session值；可不配置，默认为session */
     sessionName: string;
+    /* 是否需要附带 JWT 验证到 Header，若业务需要使用到 JWT，则可配置为true */
+    withJWT?: boolean;
     /* 设置请求头 */
     setHeader?: (()=> IAnyObject) | object;
     /* 请求URL的固定前缀，如果配置了，后续请求的URL都会自动加上这个前缀，如果是函数，则为函数的返回值 */
-    urlPerfix?: string | (() => string);
+    urlPrefix?: string | (() => string);
     /* 是否需要调用checkSession，验证小程序的登录态过期；若业务不需要使用到session_key，则可配置为true */
     doNotCheckSession?: boolean;
     /* 登录重试次数，当连续请求登录接口返回失败次数超过这个次数，将不再重试登录 */
@@ -24,8 +26,6 @@ export interface IInitOption {
         /* 请求方法，可用于上报 */
         request: Function
     ) => void);
-    /* 	可为接口提供mock数据 */
-    mockJson?: any;
     /** 所有请求都会自动带上这里的参数 */
     globalData?: boolean | object | Function;
     /** session在本地缓存的key */
@@ -142,7 +142,7 @@ export interface IUploadFileObject extends wx.UploadFileOption {
 
 export interface IGetConfigResult {
     /* 在组件初始化时传入的请求URL的固定前缀 */
-    urlPerfix?: string | (() => string);
+    urlPrefix?: string | (() => string);
     /* 在组件初始化时传入的用户登陆态设置本地缓存时间 */
     sessionExpireTime?: number;
     /* 在组件初始化时传入的用户登陆态本地缓存时间Storage的key */
@@ -163,7 +163,7 @@ export interface weRequest {
     /* 获取weRequest的配置 */
     getConfig: () => IGetConfigResult;
     /* [不建议使用] 在不发起业务请求的情况下，单独执行登录逻辑 */
-    login: (callback: Function) => void;
+    login: (callback: Function) => Promise<object>;
     /* [不建议使用] 设置用户票据的值 */
     setSession: (x: string) => void;
     /* 获取weRequest版本 */

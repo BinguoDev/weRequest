@@ -1,5 +1,5 @@
 import sessionManager from '../module/sessionManager'
 
-export default () => {
+export default (): Promise<object> => {
     return sessionManager.main()
 }

@@ -13,7 +13,8 @@ const defaultConfig: IInitOption = {
         return true
     },
     setHeader: {},
-    urlPerfix: "",
+    urlPrefix: "",
+    withJWT: false,
     doNotCheckSession: false,
     errorTitle: "操作失败",
     errorContent(res: any) {
@@ -23,7 +24,6 @@ const defaultConfig: IInitOption = {
     reLoginLimit: 3,
     errorCallback: null,
     reportCGI: false,
-    mockJson: false,
     globalData: false,
     // session在本地缓存的key
     sessionExpireKey: "sessionExpireKey"

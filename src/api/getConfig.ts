@@ -3,7 +3,7 @@ import status from '../store/status'
 
 export default () => {
     return {
-        urlPerfix: config.urlPerfix,
+        urlPrefix: config.urlPrefix,
         sessionExpireTime: config.sessionExpireTime,
         sessionExpireKey: config.sessionExpireKey,
         sessionExpire: status.sessionExpire

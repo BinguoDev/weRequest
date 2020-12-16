@@ -2,13 +2,13 @@
 export interface IInitOption {
     codeToSession: ICodeToSessionOptions;
     sessionName: string;
+    withJWT?: boolean;
     setHeader?: (() => IAnyObject) | object;
-    urlPerfix?: string | (() => string);
+    urlPrefix?: string | (() => string);
     doNotCheckSession?: boolean;
     reLoginLimit?: number;
     errorCallback?: ((obj: IAnyObject, res: string | IAnyObject | ArrayBuffer) => void) | null;
     reportCGI?: boolean | ((name: string, startTime: number, endTime: number, request: Function) => void);
-    mockJson?: any;
     globalData?: boolean | object | Function;
     sessionExpireKey?: string;
     sessionExpireTime?: number;
@@ -66,7 +66,7 @@ export interface IUploadFileObject extends wx.UploadFileOption {
     _reject?: (reason?: any) => void;
 }
 export interface IGetConfigResult {
-    urlPerfix?: string | (() => string);
+    urlPrefix?: string | (() => string);
     sessionExpireTime?: number;
     sessionExpireKey?: string;
     sessionExpire?: number;
@@ -77,7 +77,7 @@ export interface weRequest {
     uploadFile: (option: IUploadFileOption) => Promise<object>;
     getSession: () => string;
     getConfig: () => IGetConfigResult;
-    login: (callback: Function) => void;
+    login: (callback: Function) => Promise<object>;
     setSession: (x: string) => void;
     version: string;
 }

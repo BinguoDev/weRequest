@@ -1,7 +1,6 @@
 import loading from '../util/loading'
 import config from '../store/config'
 import status from '../store/status'
-import mockManager from './mockManager'
 import cacheManager from './cacheManager'
 import sessionManager from './sessionManager'
 import responseHandler from './responseHandler'
@@ -16,11 +15,11 @@ function format(originUrl: string) {
     if (originUrl.startsWith('http')) {
         return originUrl
     } else {
-        let urlPerfix = config.urlPerfix;
-        if (typeof config.urlPerfix === "function") {
-            urlPerfix = config.urlPerfix()
+        let urlPrefix = config.urlPrefix;
+        if (typeof config.urlPrefix === "function") {
+            urlPrefix = config.urlPrefix()
         }
-        return urlPerfix + originUrl;
+        return urlPrefix + originUrl;
     }
 }
 
@@ -57,10 +56,10 @@ function initializeRequestObj(obj: IRequestOption) {
     if (!obj.data) {
         obj.data = {};
     }
-    
+
     obj.header = obj.header ? obj.header : {};
     if (typeof config.setHeader === 'function') {
-        let header = config.setHeader();
+        const header = config.setHeader();
         if (typeof header === 'object') {
             obj.header = {...obj.header, ...header};
         }
@@ -68,8 +67,15 @@ function initializeRequestObj(obj: IRequestOption) {
         obj.header = {...obj.header, ...config.setHeader};
     }
 
-    if (obj.originUrl !== config.codeToSession.url && status.session) {
-        obj.data = { ...obj.data as object, [config.sessionName]: status.session };
+    if (config.withJWT) {
+        obj.header = {
+            ...obj.header,
+            Authorization: 'Bearer ' + status.session
+        };
+    } else {
+        if (obj.originUrl !== config.codeToSession.url && status.session) {
+            obj.data = { ...obj.data as object, [config.sessionName]: status.session };
+        }
     }
 
     // 如果有全局参数，则添加
@@ -100,7 +106,7 @@ function initializeUploadFileObj(obj: IUploadFileOption) {
 
     obj.header = obj.header ? obj.header : {};
     if (typeof config.setHeader === 'function') {
-        let header = config.setHeader();
+        const header = config.setHeader();
         if (typeof header === 'object') {
             obj.header = {...obj.header, ...header};
         }
@@ -108,8 +114,15 @@ function initializeUploadFileObj(obj: IUploadFileOption) {
         obj.header = {...obj.header, ...config.setHeader};
     }
 
-    if (obj.originUrl !== config.codeToSession.url && status.session) {
-        obj.formData = { ...obj.formData as object, [config.sessionName]: status.session };
+    if (config.withJWT) {
+        obj.header = {
+            ...obj.header,
+            Authorization: 'Bearer ' + status.session
+        };
+    } else {
+        if (obj.originUrl !== config.codeToSession.url && status.session) {
+            obj.formData = { ...obj.formData as object, [config.sessionName]: status.session };
+        }
     }
 
     // 如果有全局参数，则添加
@@ -199,14 +212,6 @@ function request(obj: IRequestOption): any {
     return new Promise((resolve, reject) => {
         obj = preDo(obj, resolve, reject);
 
-        if (config.mockJson) {
-            let mockResponse = mockManager.get(obj);
-            if (mockResponse) {
-                let response = responseHandler.responseForRequest(mockResponse, obj);
-                return resolve(response);
-            }
-        }
-
         if (obj.cache) {
             cacheManager.get(obj);
         }
@@ -214,7 +219,7 @@ function request(obj: IRequestOption): any {
         sessionManager.main(obj).then(() => {
             return doRequest(obj)
         }).then((res) => {
-            let response = responseHandler.responseForRequest(res as wx.RequestSuccessCallbackResult, obj);
+            const response = responseHandler.responseForRequest(res as wx.RequestSuccessCallbackResult, obj);
             if (response != null) {
                 return resolve(response);
             }
@@ -228,18 +233,10 @@ function uploadFile(obj: IUploadFileOption): any {
     return new Promise((resolve, reject) => {
         obj = preDo(obj, resolve, reject);
 
-        if (config.mockJson) {
-            let mockResponse = mockManager.get(obj);
-            if (mockResponse) {
-                let response = responseHandler.responseForUploadFile(mockResponse, obj);
-                return resolve(response);
-            }
-        }
-
         sessionManager.main(obj).then(() => {
             return doUploadFile(obj)
         }).then((res) => {
-            let response = responseHandler.responseForUploadFile(res as wx.UploadFileSuccessCallbackResult, obj);
+            const response = responseHandler.responseForUploadFile(res as wx.UploadFileSuccessCallbackResult, obj);
             if (response != null) {
                 return resolve(response);
             }
